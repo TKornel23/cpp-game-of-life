@@ -4,19 +4,20 @@
 
 
 Playground::Playground(const uint16_t width, const uint16_t height, const float aliveperc) {
-	this->GenerateGrid(width, height, aliveperc);
+	this->GenerateGrid(width, height, aliveperc); this->PlayGame();
 }
 
 Playground::Playground(const uint16_t size) {
-	this->GenerateGrid(size, size, 0.1f);
+	this->GenerateGrid(size, size, 0.1f); this->PlayGame();
 }
 
 Playground::Playground(const uint16_t width, const uint16_t height) {
-	this->GenerateGrid(width, height, 0.1f);
+	this->GenerateGrid(width, height, 0.1f); this->PlayGame();
 }
 
 Playground::Playground(const uint16_t size, const float aliveperc) {
 	this->GenerateGrid(size, size, aliveperc);
+	this->PlayGame();
 }
 
 Playground::Playground(const uint16_t height, const uint16_t width, const uint16_t top, const uint16_t left, const std::vector<std::vector<bool>>& Vektor)
@@ -29,7 +30,8 @@ Playground::Playground(const uint16_t height, const uint16_t width, const uint16
 			innerVector.emplace_back(Vektor[i][j]);
 		}
 		this->grid.emplace_back(innerVector);
-	}
+	}	
+	this->PlayGame();
 }
 
 
@@ -54,27 +56,53 @@ uint8_t Playground::getState(const bool current_state, const uint8_t n) const
 	return current_state;
 }
 
+void Playground::SetPlayground( std::vector<std::vector<bool> >& tmpGrid) {
+	this->grid = tmpGrid;
+}
+
 void Playground::PlayGame()
 {
-	printGrid(this->grid);
-	std::vector<std::vector<bool>> tmpGrid(this->grid.size(), std::vector<bool>(this->grid[0].size(), 0));
+	std::cout << std::endl;
+	std::vector<std::vector<bool>> tmpGrid(grid.size(), std::vector<bool>(grid[0].size(), 0));
 	uint8_t k = 0;
 	while(k < 100 && DeadCellsCount(grid) < grid.size() * grid[0].size())
 	{
-		for (uint16_t i = 0; i < this->grid.size()-1; i++)
+		for (uint16_t i = 0; i < grid.size()-1; i++)
 		{
-			for (uint16_t j = 0; j < this->grid[0].size()-1; j++)
+			for (uint16_t j = 0; j < grid[0].size()-1; j++)
 			{
 				uint8_t local_n = getNeighbours(i, j, grid);
 				bool survival = getState(grid[i][j], local_n);
 				tmpGrid[i][j] = survival;
 			}
 		}
-		printGrid(tmpGrid);
-		grid = tmpGrid;
+		std::cout << *this << std::endl;
+		SetPlayground(tmpGrid);
 		std::cin.get();
 		k++;
 	}
+}
+
+std::ostream& operator<<(std::ostream& os, Playground& grid)
+{
+	os << std::endl;
+
+	for (uint16_t i = 0; i < grid.GetPlayground().size(); i++)
+	{
+		for (uint16_t j = 0; j < grid.GetPlayground()[0].size(); j++)
+		{
+			if (grid.GetPlayground()[i][j])
+			{
+				os << "X";
+			}
+			else
+			{
+				os << "+";
+			}
+		}
+		os << std::endl;
+	}
+	return os;
 }
 
 uint16_t Playground::DeadCellsCount(const std::vector<std::vector<bool>>& grid) const
@@ -92,12 +120,12 @@ uint16_t Playground::DeadCellsCount(const std::vector<std::vector<bool>>& grid) 
 	return count;
 }
 
-std::vector<std::vector<bool>>& Playground::GetPlayground()
+std::vector<std::vector<bool>> Playground::GetPlayground()
 {
 	return grid;
 }
 
-uint8_t Playground::getNeighbours(const uint16_t i, const uint16_t j, const std::vector<std::vector<bool> >& grid) const
+uint8_t Playground::getNeighbours(const uint16_t i, const uint16_t j, const std::vector<std::vector<bool>>& grid) const
 {
 	uint8_t count = 0;
 
@@ -160,26 +188,26 @@ uint8_t Playground::getNeighbours(const uint16_t i, const uint16_t j, const std:
 	return count;
 }
 
-void Playground::printGrid(const std::vector<std::vector<bool>> grid) const
-{
-	std::cout << std::endl;
-
-	for (uint16_t i = 0; i < grid.size(); i++)
-	{
-		for (uint16_t j = 0; j < grid[0].size(); j++)
-		{
-			if (grid[i][j])
-			{
-				std::cout << "X";
-			}
-			else
-			{
-				std::cout << "+";
-			}
-		}
-		std::cout << std::endl;
-	}
-}
+//void Playground::printGrid(const std::vector<std::vector<bool>> grid) const
+//{
+//	std::cout << std::endl;
+//
+//	for (uint16_t i = 0; i < grid.size(); i++)
+//	{
+//		for (uint16_t j = 0; j < grid[0].size(); j++)
+//		{
+//			if (grid[i][j])
+//			{
+//				std::cout << "X";
+//			}
+//			else
+//			{
+//				std::cout << "+";
+//			}
+//		}
+//		std::cout << std::endl;
+//	}
+//}
 
 void Playground::GenerateGrid(const uint16_t width, const uint16_t height, const float aliveperc) {
 	std::random_device rd;
@@ -202,3 +230,5 @@ void Playground::GenerateGrid(const uint16_t width, const uint16_t height, const
 		this->grid.emplace_back(innerVector);
 	}
 }
+
+
